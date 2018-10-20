@@ -7,13 +7,44 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const {ObjectId} = Schema.Types
 
-const playSchema = new Schema({
-  
+export const playSchema = new Schema({
+  defensivePlay: [
+    {
+      player: {
+        stats: {
+          size: Number,
+          strength: Number,
+          speed: Number,
+          skill: Number,
+          smart: Number
+        },
+        actions: [
+          {
+            actionType: {Type: String, enum: ['manCoverage', 'zoneCoverage']},
+            params: {
+              opposingPlayer: ObjectId,
+              point: {
+                x: Number,
+                y: Number
+              },
+              radius: Number
+            },
+            duration: Number
+          }
+        ],
+        jerseyNumber: Number
+      }
+    }
+  ],
+  offensivePlay: [
+
+  ]
 });
 
 
-const playModel = mongoose.model('play', playSchema);
+const play = mongoose.model('play', playSchema);
 
-export default playModel;
+export default play;
 

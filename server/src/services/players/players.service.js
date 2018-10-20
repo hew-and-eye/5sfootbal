@@ -1,24 +1,20 @@
-// Initializes the `plays` service on path `/plays`
+// Initializes the `players` service on path `/players`
 const createService = require('feathers-mongodb');
-const hooks = require('./plays.hooks');
-import play from './play-model'
+const hooks = require('./players.hooks');
 
 module.exports = function (app) {
   const paginate = app.get('paginate');
   const mongoClient = app.get('mongoClient');
-  const options = {
-    Model: play,
-    paginate 
-  };
+  const options = { paginate };
 
   // Initialize our service with any options it requires
-  app.use('/plays', createService(options));
+  app.use('/players', createService(options));
 
   // Get our initialized service so that we can register hooks and filters
-  const service = app.service('plays');
+  const service = app.service('players');
 
   mongoClient.then(db => {
-    service.Model = db.collection('plays');
+    service.Model = db.collection('players');
   });
 
   service.hooks(hooks);
