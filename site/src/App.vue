@@ -1,13 +1,34 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+    <router-view :app="app"/>
   </div>
 </template>
 
 <script>
+import feathers from '@feathersjs/feathers'
+import io from 'socket.io-client'
+import socketio from '@feathersjs/socketio-client'
+const SOCKET_URL = 'http://localhost:3030'
 export default {
-  name: 'App'
+  name: 'App',
+  async mounted () {
+    await this.makeSocketConnection()
+  },
+  data () {
+    return {
+      app: null,
+      socket: null
+    }
+  },
+  methods: {
+    async makeSocketConnection () {
+      if (!this.socket) {
+        this.socket = io(SOCKET_URL)
+      }
+      this.app = await feathers()
+        .configure(socketio(this.socket))
+    }
+  }
 }
 </script>
 
@@ -18,6 +39,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
 }
 </style>

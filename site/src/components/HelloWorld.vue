@@ -85,34 +85,11 @@
 </template>
 
 <script>
-import feathers from '@feathersjs/client'
-import io from 'socket.io-client'
-const { socketio } = feathers
-const SOCKET_URL = 'http://localhost:3030/socket.io'
 export default {
   name: 'HelloWorld',
-  mounted () {
-    this.makeSocketConnection()
-    console.log(this.app)
-  },
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App, idiot',
-      app: null,
-      socket: null
-    }
-  },
-  methods: {
-    makeSocketConnection () {
-      if (!this.socket) {
-        this.socket = io(SOCKET_URL, {
-          path: `${SOCKET_URL}/socket.io`,
-          transports: ['websocket'],
-          query: { clientVersion: window.APP_VERSION }
-        })
-      }
-      this.app = feathers()
-        .configure(socketio(this.socket))
+      msg: 'Welcome to Your Vue.js App, idiot'
     }
   }
 }
