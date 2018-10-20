@@ -8,38 +8,59 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const {ObjectId} = Schema.Types
+import {playerSchema} from '../players/player-model'
 
 export const playSchema = new Schema({
   defensivePlay: [
     {
-      player: {
-        stats: {
-          size: Number,
-          strength: Number,
-          speed: Number,
-          skill: Number,
-          smart: Number
-        },
-        actions: [
-          {
-            actionType: {Type: String, enum: ['manCoverage', 'zoneCoverage']},
-            params: {
-              opposingPlayer: ObjectId,
-              point: {
-                x: Number,
-                y: Number
-              },
-              radius: Number
+      player: playerSchema,
+      coordinates: {
+        x: Number,
+        y: Number
+      },
+      actions: [
+        {
+          actionType: {Type: String, enum: ['manCoverage', 'zoneCoverage']},
+          params: {
+            opposingPlayer: ObjectId,
+            point: {
+              x: Number,
+              y: Number
             },
-            duration: Number
-          }
-        ],
-        jerseyNumber: Number
-      }
+            radius: Number
+          },
+          duration: Number
+        }
+      ]
     }
   ],
   offensivePlay: [
-
+    {
+      player: playerSchema,
+      coordinates: {
+        x: Number,
+        y: Number
+      },
+      actions: [
+        {
+          actionType: {Type: String, enum: ['runBlock', 'run', 'handOff']},
+          params: {
+            opposingPlayer: ObjectId,
+            direction: {
+              x: Number,
+              y: Number
+            },
+            runPoints: [{
+                x: Number,
+                y: Number
+            }],
+            playerFrom: ObjectId,
+            playerTo: ObjectId
+          },
+          duration: Number
+        }
+      ]
+    }
   ]
 });
 
