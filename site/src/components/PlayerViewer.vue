@@ -4,15 +4,19 @@
     <div> Here are the number of things in the appasdfasdf: <br/> {{Object.keys(app || {}).length}} </div>
     <button @click="fetchPlayers"> Fetch some players </button>
     <!-- <button @click="createPlayers"> create some players </button> -->
-    <div v-for="p in players" :key="p._id">
-      {{p}}
+    <div class="player-cards">
+      <div v-for="p in players" :key="p._id">
+        <player-card :player="p" />
+      </div>
     </div>
   </div>
 </template>
 <script>
 /* eslint-disable */
 import ObjectId from 'bson-objectid'
+import PlayerCard from '@/components/PlayerCard'
 export default {
+  components: { PlayerCard },
   props: {
     app: { type: Object }
   },
@@ -25,7 +29,7 @@ export default {
     async fetchPlayers () {
       console.log('Trying to fetch players. Here is the app: ', this.app)
       
-      this.players = await this.app.service('players').find({})
+      this.players = (await this.app.service('players').find({$limit: 100})).data
       console.log('Here are the players:', this.players)
     },
     async createPlayers () {
@@ -164,3 +168,12 @@ export default {
   }
 }
 </script>
+<style lang="sass" scoped>
+.player-cards
+  justify-content: center
+  display: flex
+  overflow: auto
+  flex-wrap: wrap
+  background: #fafafa
+</style>
+
