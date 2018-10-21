@@ -34,7 +34,6 @@
         >
           <span> {{playerData.player.jerseyNumber}} </span>
         </p>
-        <p class="arrow" :style="arrowStyle(playerData)">---></p>
       </div>
       <div
         v-for="(playerData) in (play || {}).defensivePlay"
@@ -50,7 +49,6 @@
       </div>
     </div>
     <button style="position: fixed; bottom: 100px; left: 100px;" @click="timeStep += 1">STEP FORWARD</button>
-    <button style="position: fixed; bottom: 100px; left: 260px;" @click="generateDummyCoordinates">Generate dumb play</button>
   </div>
 </template>
 <script>
@@ -152,7 +150,7 @@ export default {
           vMax: item.player.stats.speed * 3.3
         });
       }
-      this.game.ballCoordinates = playerPhysicsOffense[0].d;
+      this.game.ballCoordinates = this.playerPhysicsOffense[0].d;
       // this.playerPhysicsOffense.forEach(element => {
       //   console.log(element);
       // });
@@ -160,36 +158,39 @@ export default {
     updatePlayerPositionsOffense() {
       for (let i = 0; i < this.play.offensivePlay.length; i++) {
         let currentAction = this.play.offensivePlay[i].actions[0];
-        if (currentAction.actionType === "handOff" && playerWithBall == i) {
+        if (
+          currentAction.actionType === "handOff" &&
+          this.playerWithBall == i
+        ) {
           let target = currentAction.params.playerTo;
           this.playerWithBall = target;
-          this.game.ballCoordinates = playerPhysicsOffense[target].d;
+          this.game.ballCoordinates = this.playerPhysicsOffense[target].d;
         } else if (currentAction.actionType === "runBlock") {
           let vGoal = {
             x: 0,
             y: 0
           };
-          vGoal = differenceVector(
-            playerPhysicsDefense[currentAction.params.opposingPlayer].d,
-            playerPhysicsOffense[i].d
+          vGoal = this.differenceVector(
+            this.playerPhysicsDefense[currentAction.params.opposingPlayer].d,
+            this.playerPhysicsOffense[i].d
           );
-          vGoal = normalizeVector(vGoal);
-          let a = normalizeVector(
-            differenceVector(
+          vGoal = this.normalizeVector(vGoal);
+          let a = this.normalizeVector(
+            this.differenceVector(
               vGoal,
-              scaleVector(
-                playerPhysicsOffense[i].v,
-                1 / playerPhysicsOffense[i].vMax
+              this.scaleVector(
+                this.playerPhysicsOffense[i].v,
+                1 / this.playerPhysicsOffense[i].vMax
               )
             )
           );
-          playerPhysicsOffense[i].v = addVector(
-            playerPhysicsOffense[i].v,
-            scaleVector(a, 0.6 * 0.25)
+          this.playerPhysicsOffense[i].v = this.addVector(
+            this.playerPhysicsOffense[i].v,
+            this.scaleVector(a, 0.6 * 0.25)
           );
-          playerPhysicsOffense[i].d = addVector(
-            playerPhysicsOffense[i].d,
-            scaleVector(playerPhysicsOffense[i].v, 0.25)
+          this.playerPhysicsOffense[i].d = this.addVector(
+            this.playerPhysicsOffense[i].d,
+            this.scaleVector(this.playerPhysicsOffense[i].v, 0.25)
           );
         } else if (currentAction.actionType === "run") {
           console.log("a");
@@ -197,19 +198,20 @@ export default {
         this.play.offensivePlay[i].actions[0].duration -= 0.25;
         if (this.play.offensivePlay[i].actions[0].duration <= 0)
           this.play.offensivePlay[i].actions.shift();
+        this.play.offensivePlay[i].coordinates = this.playerPhysicsOffense[i].d;
       }
     },
     distance(p1, p2) {
       return Math.sqrt((p1.x - p2.x) ^ (2 + (p1.y - p2.y)) ^ 2);
     },
     differenceVector(p1, p2) {
-      p = {};
+      let p = {};
       p.x = p1.x - p2.x;
       p.y = p1.y - p2.y;
       return p;
     },
     addVector(p1, p2) {
-      p = {};
+      let p = {};
       p.x = p2.x + p1.x;
       p.y = p2.y + p1.y;
       return p;
