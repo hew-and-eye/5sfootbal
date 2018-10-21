@@ -3,7 +3,25 @@
     <!-- <button @click="createDummyPlay"> create SHIT play</button> -->
     <p v-if="!app"> No feathers connection </p>
     <div class="field" :style="fieldStyle">
-      <img src="../assets/field.svg" :style="fieldBgStyle" />
+      <!-- <img src="../assets/field.svg" :style="fieldBgStyle" /> -->
+      <div
+        class=end
+        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}"
+      >
+      </div>
+      <div
+        class=yard
+        v-for="(yard, index) in [0, 10, 20, 30, 40, 50, 40, 30, 20, 10]"
+        :key="index"
+        :style="{'height': 30 * scaleFactor - 10 + 'px', 'width': 160 * scaleFactor + 'px'}"
+      >
+        {{yard}}
+      </div>
+      <div
+        class=end
+        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}"
+      >
+      </div>
       <p
         v-if="play"
         class="player offense"
@@ -70,24 +88,11 @@ export default {
       }
     },
     fieldStyle () {
-      return {
+      return { 
         width: 160 * this.scaleFactor + 'px',
         height: 360 * this.scaleFactor + 'px'
       }
     },
-    fieldBgStyle () {
-      const garbage = { w: 1.067, h: 1.05 }
-      const width = 360 * this.scaleFactor * garbage.w
-      const height = 160 * this.scaleFactor * garbage.h
-      const marginTop = (width - height) / 2
-      return {
-        position: 'absolute',
-        height: height + 'px',
-        width: width + 'px',
-        top: marginTop + 'px',
-        left: -marginTop - 50 + 'px',
-      } 
-    }
   }, 
   methods: {
     async createDummyPlay() {
@@ -246,13 +251,21 @@ export default {
 <style lang="sass" scoped>
 .match-viewer
   height: 100%
+  width: 100%
+  text-align: center
   .field
     width: 160px
     height: 360px
-    margin-left: 50px
     background: blue
+    .end
+      background: #449944
+      border: 5px solid white
+    .yard
+      background: green
+      border: 5px solid white
     img
-      transform: rotate(90deg)
+      opacity: 0.4
+      background: red
   .player
     display: flex
     justify-content: center
