@@ -22,6 +22,7 @@ export const playerSchema = new Schema({
     smart: Number
   },
   jerseyNumber: Number,
+  position: String,
   teamId: ObjectId
 });
 
