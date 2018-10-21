@@ -13,7 +13,7 @@ module.exports = {
 
   after: {
     all: [],
-    find: [],
+    find: [(hook) => console.log(JSON.stringify(hook.result, null, 2))],
     get: [],
     create: [],
     update: [],

@@ -1,6 +1,7 @@
 <template>
   <div class="match-viewer">
-    <!-- <button @click="createDummyPlay"> create SHIT play</button> -->
+    <button @click="populatePlayerPhysics" style="position:fixed; top:20px; left:20px; z-index:2000;"> populatePlayerPhysics</button>
+    <button @click="updatePlayerPositionsOffense" style="position:fixed; top:500px; left:20px; z-index:2000;"> updatePlayerPositionsOffense</button>
     <p v-if="!app"> No feathers connection </p>
     <div class="field" :style="fieldStyle">
       <!-- <img src="../assets/field.svg" :style="fieldBgStyle" /> -->
@@ -54,249 +55,174 @@
 </template>
 <script>
 /* eslint-disable */
-import ObjectId from 'bson-objectid'
+import ObjectId from "bson-objectid";
 
 export default {
   props: {
     app: { type: Object }
   },
-  data () {
+  data() {
     return {
       play: null,
+      game: {},
       timeStep: 0,
       fieldDims: null,
-      scaleFactor: null
-    }
+      scaleFactor: null,
+      playerPhysicsOffense: [],
+      playerPhysicsDefense: [],
+      playerWithBall: 0
+    };
   },
-  mounted () {
-    const { width, height } =document.body.getBoundingClientRect()
-    this.fieldDims = { width, height }
-    this.scaleFactor = (width - 100) / 160
+  mounted() {
+    const { width, height } = document.body.getBoundingClientRect();
+    this.fieldDims = { width, height };
+    this.scaleFactor = (width - 100) / 160;
   },
   watch: {
     app: {
-      async handler (after, before) {
+      async handler(after, before) {
         if (!!after && !before) {
-          const result = await this.app.service('plays').find({})
-          this.play = result.data[0]
+          const result = await this.app.service("plays").find({});
+          this.play = result.data[0];
         }
       }
     }
   },
   computed: {
-    arrowStyle () {
-      const scaleFactor = this.scaleFactor
+    playerStyle() {
+      const scaleFactor = this.scaleFactor;
       return playerData => {
-        if(!playerData || !playerData.coordinates)
-          return
-        if (!Array.isArray(playerData.coordinates))
-          return { display: 'none' }
-        const {x, y} = playerData.coordinates[this.timeStep]
-        let prev
-        let angle = 0
-        if (this.timeStep) {
-          prev = playerData.coordinates[this.timeStep - 1]
-          const vector = { dx: x - prev.x, dy: y - prev.y }
-          angle = 180 * Math.atan(vector.dy / vector.dx) / Math.PI
-        }
-        console.log(angle)
+        if (!playerData || !playerData.coordinates) return;
+        const { x, y } = playerData.coordinates;
         return {
-          left: x * scaleFactor + 'px',
-          top: y * scaleFactor + 'px',
-          transform: `rotate(${angle}deg)`
-        }
-      }
+          left: x * scaleFactor + "px",
+          top: y * scaleFactor + "px"
+        };
+      };
     },
-    playerStyle () {
-      const scaleFactor = this.scaleFactor
-      return playerData => {
-        if(!playerData || !playerData.coordinates)
-          return
-        const {x, y} = Array.isArray(playerData.coordinates) ? playerData.coordinates[this.timeStep] : playerData.coordinates
-        return {
-          left: x * scaleFactor + 'px',
-          top: y * scaleFactor + 'px'
-        }
-      }
+    fieldStyle() {
+      return {
+        width: 160 * this.scaleFactor + "px",
+        height: 360 * this.scaleFactor + "px"
+      };
     },
-    fieldStyle () {
-      return { 
-        width: 160 * this.scaleFactor + 'px',
-        height: 360 * this.scaleFactor + 'px'
-      }
-    },
-  }, 
-  methods: {
-    generateDummyCoordinates () {
-      const { offensivePlay, defensivePlay } = this.play
-      const fakePath = [
-        {x: 0, y: 0},
-        {x: 3, y: 3},
-        {x: 3, y: 3},
-        {x: 3, y: 6},
-        {x: 6, y: 6},
-        {x: 6, y: 9},
-        {x: 6, y: 12},
-        {x: 9, y: 15},
-        {x: 9, y: 18},
-        {x: 12, y: 21},
-        {x: 15, y: 21},
-        {x: 18, y: 21},
-      ]
-      offensivePlay[0].coordinates = fakePath
-    },
-    async createDummyPlay () {
-      const teamOffense = new ObjectId()
-      const players = [
-      {
-        name: 'JASON KELCE',
-        stats: {
-          size: 8,
-          strength: 8,
-          speed: 3,
-          skill: 3,
-          smart: 4
-        },
-        jerseyNumber: 62,
-        teamId: teamOffense
-      },
-      {
-        name: 'DAVID DECASTRO',
-        stats: {
-          size: 7,
-          strength: 9,
-          speed: 2,
-          skill: 3,
-          smart: 3
-        },
-        jerseyNumber: 66,
-        teamId: teamOffense
-      },{
-        name: 'ZACK MARTIN',
-        stats: {
-          size: 9,
-          strength:8,
-          speed: 3,
-          skill: 5,
-          smart: 2
-        },
-        jerseyNumber: 70,
-        teamId: teamOffense
-      },{
-        name: 'DAVID BAKHTIARI',
-        stats: {
-          size: 7,
-          strength:7,
-          speed: 5,
-          skill: 5,
-          smart: 2
-        },
-        jerseyNumber: 69,
-        teamId: teamOffense
-      },{
-        name: 'DARYL WILLIAMS',
-        stats: {
-          size: 9,
-          strength:8,
-          speed: 3,
-          skill: 5,
-          smart: 2
-        },
-        jerseyNumber: 60,
-        teamId: teamOffense
-      },{
-        name: 'ROB GRONKOWSKI',
-        stats: {
-          size: 8,
-          strength:8,
-          speed: 6,
-          skill: 7,
-          smart: 3
-        },
-        jerseyNumber: 87,
-        teamId: teamOffense
-      },{
-        name: 'JIMMY GRAHAM',
-        stats: {
-          size: 8,
-          strength:6,
-          speed: 7,
-          skill: 6,
-          smart: 4
-        },
-        jerseyNumber: 80,
-        teamId: teamOffense
-      },{
-        name: 'ANTONIO BROWN',
-        stats: {
-          size: 3,
-          strength:5,
-          speed: 9,
-          skill: 8,
-          smart: 6
-        },
-        jerseyNumber: 84,
-        teamId: teamOffense
-      },{
-        name: 'JULIO JONES',
-        stats: {
-          size: 7,
-          strength:6,
-          speed: 9,
-          skill: 7,
-          smart: 5
-        },
-        jerseyNumber: 70,
-        teamId: teamOffense
-      },{
-        name: 'SAQUON BARKLEY',
-        stats: {
-          size: 6,
-          strength:9,
-          speed: 8,
-          skill: 7,
-          smart: 4
-        },
-        jerseyNumber: 26,
-        teamId: teamOffense
-      },{
-        name: 'DREW BREES',
-        stats: {
-          size: 4,
-          strength:5,
-          speed: 6,
-          skill: 9,
-          smart: 9
-        },
-        jerseyNumber: 9,
-        teamId: teamOffense
-      }
-    ]
-    let defenseId = new ObjectId()
-    let defensivePlay = []
-    let offensivePlay = []
-
-    for (let player of players) {
-      let playerOffense = {}
-      playerOffense.player = player
-      playerOffense.coordinates = {}
-      playerOffense.coordinates.x = Math.floor(Math.random() * 160)
-      playerOffense.coordinates.y = Math.floor(Math.random() * 360)
-      offensivePlay.push(playerOffense)
-      player.teamId = defenseId
-      let playerDefense = {}
-      playerDefense.player = player
-      playerDefense.coordinates = {}
-      playerDefense.coordinates.x = Math.floor(Math.random() * 160)
-      playerDefense.coordinates.y = Math.floor(Math.random() * 360)
-      defensivePlay.push(playerDefense)
+    fieldBgStyle() {
+      const garbage = { w: 1.067, h: 1.05 };
+      const width = 360 * this.scaleFactor * garbage.w;
+      const height = 160 * this.scaleFactor * garbage.h;
+      const marginTop = (width - height) / 2;
+      return {
+        position: "absolute",
+        height: height + "px",
+        width: width + "px",
+        top: marginTop + "px",
+        left: -marginTop - 50 + "px"
+      };
     }
-    await this.app.service('plays').create({
-      defensivePlay,offensivePlay
-    })
+  },
+  methods: {
+    populatePlayerPhysics() {
+      for (let item of this.play.offensivePlay) {
+        this.playerPhysicsOffense.push({
+          d: item.coordinates,
+          v: {
+            x: 0,
+            y: 0
+          },
+          a: {
+            x: 0,
+            y: 0
+          },
+          m: 0.7 * item.player.stats.size + 0.3 * item.player.stats.strength,
+          vMax: item.player.stats.speed * 3.3
+        });
+      }
+      for (let item of this.play.defensivePlay) {
+        this.playerPhysicsDefense.push({
+          d: item.coordinates,
+          v: {
+            x: 0,
+            y: 0
+          },
+          a: {
+            x: 0,
+            y: 0
+          },
+          m: 0.7 * item.player.stats.size + 0.3 * item.player.stats.strength,
+          vMax: item.player.stats.speed * 3.3
+        });
+      }
+      this.game.ballCoordinates = playerPhysicsOffense[0].d;
+      // this.playerPhysicsOffense.forEach(element => {
+      //   console.log(element);
+      // });
+    },
+    updatePlayerPositionsOffense() {
+      for (let i = 0; i < this.play.offensivePlay.length; i++) {
+        let currentAction = this.play.offensivePlay[i].actions[0];
+        if (currentAction.actionType === "handOff" && playerWithBall == i) {
+          let target = currentAction.params.playerTo;
+          this.playerWithBall = target;
+          this.game.ballCoordinates = playerPhysicsOffense[target].d;
+        } else if (currentAction.actionType === "runBlock") {
+          let vGoal = {
+            x: 0,
+            y: 0
+          };
+          vGoal = differenceVector(
+            playerPhysicsDefense[currentAction.params.opposingPlayer].d,
+            playerPhysicsOffense[i].d
+          );
+          vGoal = normalizeVector(vGoal);
+          let a = normalizeVector(
+            differenceVector(
+              vGoal,
+              scaleVector(
+                playerPhysicsOffense[i].v,
+                1 / playerPhysicsOffense[i].vMax
+              )
+            )
+          );
+          playerPhysicsOffense[i].v = addVector(
+            playerPhysicsOffense[i].v,
+            scaleVector(a, 0.6 * 0.25)
+          );
+          playerPhysicsOffense[i].d = addVector(
+            playerPhysicsOffense[i].d,
+            scaleVector(playerPhysicsOffense[i].v, 0.25)
+          );
+        } else if (currentAction.actionType === "run") {
+          console.log("a");
+        }
+        this.play.offensivePlay[i].actions[0].duration -= 0.25;
+        if (this.play.offensivePlay[i].actions[0].duration <= 0)
+          this.play.offensivePlay[i].actions.shift();
+      }
+    },
+    distance(p1, p2) {
+      return Math.sqrt((p1.x - p2.x) ^ (2 + (p1.y - p2.y)) ^ 2);
+    },
+    differenceVector(p1, p2) {
+      p = {};
+      p.x = p1.x - p2.x;
+      p.y = p1.y - p2.y;
+      return p;
+    },
+    addVector(p1, p2) {
+      p = {};
+      p.x = p2.x + p1.x;
+      p.y = p2.y + p1.y;
+      return p;
+    },
+    scaleVector(p1, a) {
+      return { x: p1.x * a, y: p1.y * a };
+    },
+    normalizeVector(p1) {
+      let r = this.distance({ x: 0, y: 0 }, p1);
+      return { x: p1.x / r, y: p1.y / r };
     }
   }
-}
+};
 </script>
 <style lang="sass" scoped>
 .match-viewer
@@ -321,10 +247,10 @@ export default {
     justify-content: center
     align-items: center
     position: absolute
-    height: 3em
-    width: 3em
-    margin-left: -1.5em
-    margin-top: -1.5em
+    height: 1em
+    width: 1em
+    margin-left: -0.5em
+    margin-top: -0.5em
     border-radius: 100%
     border: 2px solid white
     color: white

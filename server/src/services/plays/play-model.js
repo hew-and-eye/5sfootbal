@@ -7,10 +7,38 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const {ObjectId} = Schema.Types
-import {playerSchema} from '../players/player-model'
+const { ObjectId } = Schema.Types
+import { playerSchema } from '../players/player-model'
 
 export const playSchema = new Schema({
+  offensivePlay: [
+    {
+      player: playerSchema,
+      coordinates: {
+        x: Number,
+        y: Number
+      },
+      actions: [
+        {
+          actionType: { Type: String, enum: ['runBlock', 'run', 'handOff'] },
+          params: {
+            opposingPlayer: Number,
+            direction: {
+              x: Number,
+              y: Number
+            },
+            runPoints: [{
+              x: Number,
+              y: Number
+            }],
+            playerFrom: Number,
+            playerTo: Number
+          },
+          duration: Number
+        }
+      ]
+    }
+  ],
   defensivePlay: [
     {
       player: playerSchema,
@@ -20,9 +48,9 @@ export const playSchema = new Schema({
       },
       actions: [
         {
-          actionType: {Type: String, enum: ['manCoverage', 'zoneCoverage']},
+          actionType: { Type: String, enum: ['manCoverage', 'zoneCoverage', 'blitz'] },
           params: {
-            opposingPlayer: ObjectId,
+            opposingPlayer: Number, //index in players array, 0-4 linemen, 5-9 skillposition, 10qb
             point: {
               x: Number,
               y: Number
@@ -34,34 +62,6 @@ export const playSchema = new Schema({
       ]
     }
   ],
-  offensivePlay: [
-    {
-      player: playerSchema,
-      coordinates: {
-        x: Number,
-        y: Number
-      },
-      actions: [
-        {
-          actionType: {Type: String, enum: ['runBlock', 'run', 'handOff']},
-          params: {
-            opposingPlayer: ObjectId,
-            direction: {
-              x: Number,
-              y: Number
-            },
-            runPoints: [{
-                x: Number,
-                y: Number
-            }],
-            playerFrom: ObjectId,
-            playerTo: ObjectId
-          },
-          duration: Number
-        }
-      ]
-    }
-  ]
 });
 
 

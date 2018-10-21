@@ -1,9 +1,11 @@
 
+import dummyData from './hooks/dummy-data'
+import { Hook } from 'mocha';
 
 module.exports = {
   before: {
     all: [],
-    find: [],
+    find: [() => console.log('HEEELLLLO')],
     get: [],
     create: [],
     update: [],
@@ -13,7 +15,7 @@ module.exports = {
 
   after: {
     all: [],
-    find: [],
+    find: [(hook) => console.log('RES', hook.result)],
     get: [],
     create: [],
     update: [],

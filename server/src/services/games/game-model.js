@@ -7,8 +7,8 @@
 
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const {ObjectId} = Schema.Types
-import {playSchema} from '../plays/play-model'
+const { ObjectId } = Schema.Types
+import { playSchema } from '../plays/play-model'
 
 // all coordinates are in feet with vertical orientation. top left back of the endzone is (0,0)
 
@@ -17,8 +17,8 @@ const gameSchema = new Schema({
   team1: ObjectId,
   team2: ObjectId,
   timeRemaining: Number,
-  posession: {Type: String, enum: ['team1', 'team2']},
-  ballPosition: {
+  posession: { Type: String, enum: ['team1', 'team2'] },
+  ballCoordinates: {
     x: Number,
     y: Number
   },
@@ -44,8 +44,8 @@ const gameSchema = new Schema({
         x: Number,
         y: Number
       },
-      startPossesion: {Type: String, enum: ['team1', 'team2']},
-      endPossesion: {Type: String, enum: ['team1', 'team2']},
+      startPossesion: { Type: String, enum: ['team1', 'team2'] },
+      endPossesion: { Type: String, enum: ['team1', 'team2'] },
     }
   ]
 });
