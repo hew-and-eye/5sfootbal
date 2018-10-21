@@ -22,25 +22,34 @@
         :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}"
       >
       </div>
-      <p
-        v-if="play"
-        class="player offense"
+      <div
         v-for="(playerData) in (play || {}).offensivePlay"
         :key="playerData.player._id"
-        :style="playerStyle(playerData)"
       >
-        <span> {{playerData.player.jerseyNumber}} </span>
-      </p>
-      <p
-        v-if="play"
-        class="player defense"
+        <p
+          v-if="play"
+          class="player offense"
+          :style="playerStyle(playerData)"
+        >
+          <span> {{playerData.player.jerseyNumber}} </span>
+        </p>
+        <p class="arrow" :style="arrowStyle(playerData)">---></p>
+      </div>
+      <div
         v-for="(playerData) in (play || {}).defensivePlay"
         :key="playerData.player._id"
-        :style="playerStyle(playerData)"
       >
-        <span> {{playerData.player.jerseyNumber}} </span>
-      </p>
+        <p
+          v-if="play"
+          class="player defense"
+          :style="playerStyle(playerData)"
+        >
+          <span> {{playerData.player.jerseyNumber}} </span>
+        </p>
+      </div>
     </div>
+    <button style="position: fixed; bottom: 100px; left: 100px;" @click="timeStep += 1">STEP FORWARD</button>
+    <button style="position: fixed; bottom: 100px; left: 260px;" @click="generateDummyCoordinates">Generate dumb play</button>
   </div>
 </template>
 <script>
@@ -75,12 +84,35 @@ export default {
     }
   },
   computed: {
+    arrowStyle () {
+      const scaleFactor = this.scaleFactor
+      return playerData => {
+        if(!playerData || !playerData.coordinates)
+          return
+        if (!Array.isArray(playerData.coordinates))
+          return { display: 'none' }
+        const {x, y} = playerData.coordinates[this.timeStep]
+        let prev
+        let angle = 0
+        if (this.timeStep) {
+          prev = playerData.coordinates[this.timeStep - 1]
+          const vector = { dx: x - prev.x, dy: y - prev.y }
+          angle = 180 * Math.atan(vector.dy / vector.dx) / Math.PI
+        }
+        console.log(angle)
+        return {
+          left: x * scaleFactor + 'px',
+          top: y * scaleFactor + 'px',
+          transform: `rotate(${angle}deg)`
+        }
+      }
+    },
     playerStyle () {
       const scaleFactor = this.scaleFactor
       return playerData => {
         if(!playerData || !playerData.coordinates)
           return
-        const {x, y} = playerData.coordinates
+        const {x, y} = Array.isArray(playerData.coordinates) ? playerData.coordinates[this.timeStep] : playerData.coordinates
         return {
           left: x * scaleFactor + 'px',
           top: y * scaleFactor + 'px'
@@ -95,7 +127,25 @@ export default {
     },
   }, 
   methods: {
-    async createDummyPlay() {
+    generateDummyCoordinates () {
+      const { offensivePlay, defensivePlay } = this.play
+      const fakePath = [
+        {x: 0, y: 0},
+        {x: 3, y: 3},
+        {x: 3, y: 3},
+        {x: 3, y: 6},
+        {x: 6, y: 6},
+        {x: 6, y: 9},
+        {x: 6, y: 12},
+        {x: 9, y: 15},
+        {x: 9, y: 18},
+        {x: 12, y: 21},
+        {x: 15, y: 21},
+        {x: 18, y: 21},
+      ]
+      offensivePlay[0].coordinates = fakePath
+    },
+    async createDummyPlay () {
       const teamOffense = new ObjectId()
       const players = [
       {
@@ -282,4 +332,13 @@ export default {
       background: blue
     &.defense
       background: red
+  .arrow
+    position: absolute
+    font-size: 24px
+    font-weight: bold
+    color: red
+    width: 100px
+    height: 100px
+    margin: -50px
+
 </style>
