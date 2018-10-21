@@ -1,13 +1,30 @@
 <template>
   <div class="match-viewer">
-    <button @click="createDummyPlay"> create SHIT play</button>
+    <!-- <button @click="createDummyPlay"> create SHIT play</button> -->
     <p>
       Here is the match viewer. Lucky you.
     </p>
     <p v-if="!app"> No feathers connection </p>
     <div class="field">
       field should be here
-      <p class="player" v-for="(p, index) in players" :key="index" :style="playerStyle(index)"></p>
+      <p
+        v-if="play"
+        class="player offense"
+        v-for="(playerData) in play.offensivePlay"
+        :key="playerData.player._id"
+        :style="playerStyle(playerData)"
+      >
+        <span> {{playerData.player.jerseyNumber}} </span>
+      </p>
+      <p
+        v-if="play"
+        class="player defense"
+        v-for="(playerData) in play.defensivePlay"
+        :key="playerData.player._id"
+        :style="playerStyle(playerData)"
+      >
+        <span> {{playerData.player.jerseyNumber}} </span>
+      </p>
     </div>
   </div>
 </template>
@@ -21,7 +38,34 @@ export default {
   },
   data () {
     return {
-      players: []
+      play: null,
+      timeStep: 0
+    }
+  },
+  watch: {
+    app: {
+      async handler (after, before) {
+        if (!!after && !before) {
+          console.log('ello')
+          const result = await this.app.service('plays').find({})
+          console.log(result)
+          this.play = result.data[0]
+          console.log(this.play)
+        }
+      }
+    }
+  },
+  computed: {
+    playerStyle () {
+      return playerData => {
+        if(!playerData || !playerData.coordinates)
+          return
+        const {x, y} = playerData.coordinates
+        return {
+          top: y * 3 + 'px',
+          left: x * 3 + 'px'
+        }
+      }
     }
   }, 
   methods: {
@@ -185,5 +229,20 @@ export default {
   height: 100%
   .field
     width: 100%
+    height: 100%
     background: green
+  .player
+    display: flex
+    justify-content: center
+    align-items: center
+    position: fixed
+    height: 3em
+    width: 3em
+    border-radius: 100%
+    border: 2px solid white
+    color: white
+    &.offense
+      background: blue
+    &.defense
+      background: red
 </style>
