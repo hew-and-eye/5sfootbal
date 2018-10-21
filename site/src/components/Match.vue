@@ -24,7 +24,8 @@
       >
       </div>
       <div
-        v-for="(playerData) in (play || {}).offensivePlay"
+        v-for="(playerData) in (play || {}).playerData"
+        v-if="playerData.team === 'Offense'"
         :key="playerData.player._id"
       >
         <p
@@ -36,7 +37,8 @@
         </p>
       </div>
       <div
-        v-for="(playerData) in (play || {}).defensivePlay"
+        v-for="(playerData) in (play || {}).playerData"
+        v-if="playerData.team === 'Defense'"
         :key="playerData.player._id"
       >
         <p
@@ -120,8 +122,8 @@ export default {
   },
   methods: {
     populatePlayerPhysics() {
-      for (let item of this.play.offensivePlay) {
-        this.playerPhysicsOffense.push({
+      for (let item of this.play.playerData) {
+        item.physics = {
           d: item.coordinates,
           v: {
             x: 0,
@@ -133,76 +135,59 @@ export default {
           },
           m: 0.7 * item.player.stats.size + 0.3 * item.player.stats.strength,
           vMax: item.player.stats.speed * 3.3
-        });
+        };
       }
-      for (let item of this.play.defensivePlay) {
-        this.playerPhysicsDefense.push({
-          d: item.coordinates,
-          v: {
-            x: 0,
-            y: 0
-          },
-          a: {
-            x: 0,
-            y: 0
-          },
-          m: 0.7 * item.player.stats.size + 0.3 * item.player.stats.strength,
-          vMax: item.player.stats.speed * 3.3
-        });
-      }
-      this.game.ballCoordinates = this.playerPhysicsOffense[0].d;
-      // this.playerPhysicsOffense.forEach(element => {
-      //   console.log(element);
-      // });
+      this.game.ballCoordinates = this.play.playerData[0].d;
+      this.play.playerData.forEach(element => {
+        console.log("PHYSICS", element);
+      });
     },
     updatePlayerPositionsOffense() {
-      for (let i = 0; i < this.play.offensivePlay.length; i++) {
-        let currentAction = this.play.offensivePlay[i].actions[0];
+      this.play.playerData.forEach(el => {
+        let currentAction = el.actions[0];
         if (
           currentAction.actionType === "handOff" &&
-          this.playerWithBall == i
+          this.playerWithBall == this.play.playerData.indexOf(el)
         ) {
           let target = currentAction.params.playerTo;
           this.playerWithBall = target;
-          this.game.ballCoordinates = this.playerPhysicsOffense[target].d;
+          this.game.ballCoordinates = el.physics.d;
         } else if (currentAction.actionType === "runBlock") {
-          let vGoal = {
-            x: 0,
-            y: 0
-          };
-          vGoal = this.differenceVector(
-            this.playerPhysicsDefense[currentAction.params.opposingPlayer].d,
-            this.playerPhysicsOffense[i].d
+          let vGoal = this.differenceVector(
+            this.play.playerData[currentAction.params.opposingPlayer].physics.d,
+            el.physics.d
           );
+          if (el.player.name === "JASON KELCE")
+            console.log("before norm", vGoal);
           vGoal = this.normalizeVector(vGoal);
+
+          if (el.player.name === "JASON KELCE") console.log(vGoal);
           let a = this.normalizeVector(
             this.differenceVector(
               vGoal,
-              this.scaleVector(
-                this.playerPhysicsOffense[i].v,
-                1 / this.playerPhysicsOffense[i].vMax
-              )
+              this.scaleVector(el.physics.v, 1 / el.physics.vMax)
             )
           );
-          this.playerPhysicsOffense[i].v = this.addVector(
-            this.playerPhysicsOffense[i].v,
-            this.scaleVector(a, 0.6 * 0.25)
+          if (el.player.name === "JASON KELCE") console.log(a);
+          el.physics.v = this.addVector(
+            el.physics.v,
+            this.scaleVector(a, 0.6 * 0.25 * el.physics.vMax)
           );
-          this.playerPhysicsOffense[i].d = this.addVector(
-            this.playerPhysicsOffense[i].d,
-            this.scaleVector(this.playerPhysicsOffense[i].v, 0.25)
+          el.physics.d = this.addVector(
+            el.physics.d,
+            this.scaleVector(el.physics.v, 0.25)
           );
-        } else if (currentAction.actionType === "run") {
-          console.log("a");
         }
-        this.play.offensivePlay[i].actions[0].duration -= 0.25;
-        if (this.play.offensivePlay[i].actions[0].duration <= 0)
-          this.play.offensivePlay[i].actions.shift();
-        this.play.offensivePlay[i].coordinates = this.playerPhysicsOffense[i].d;
-      }
+        // else if (currentAction.actionType === "run") {
+        //   console.log("a");
+        // }
+        el.actions[0].duration -= 0.25;
+        if (el.actions[0].duration <= 0) el.actions.shift();
+        el.coordinates = el.physics.d;
+      });
     },
     distance(p1, p2) {
-      return Math.sqrt((p1.x - p2.x) ^ (2 + (p1.y - p2.y)) ^ 2);
+      return Math.sqrt(Math.abs(((p2.x - p1.x) ^ 2) + ((p2.y - p1.y) ^ 2)));
     },
     differenceVector(p1, p2) {
       let p = {};
@@ -220,6 +205,7 @@ export default {
       return { x: p1.x * a, y: p1.y * a };
     },
     normalizeVector(p1) {
+      if (p1.x === 0 && p1.y === 0) return p1;
       let r = this.distance({ x: 0, y: 0 }, p1);
       return { x: p1.x / r, y: p1.y / r };
     }
@@ -256,6 +242,7 @@ export default {
     border-radius: 100%
     border: 2px solid white
     color: white
+    transition: top 0.25s, left 0.25s
     &.offense
       background: blue
     &.defense

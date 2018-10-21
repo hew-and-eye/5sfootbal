@@ -16,7 +16,7 @@ const coordinateSchema = new Schema({
 })
 
 export const playSchema = new Schema({
-  play: [
+  playerData: [
     {
       team: { Type: { String, enum: ['Offense', 'Defense'] } },
       teamName: String,

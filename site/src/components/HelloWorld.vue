@@ -66,7 +66,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 0,
+                opposingPlayer: 11,
                 direction: {
                   x: 0,
                   y: -1
@@ -99,7 +99,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 5,
+                opposingPlayer: 16,
                 direction: {
                   x: 0,
                   y: -1
@@ -132,7 +132,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 4,
+                opposingPlayer: 15,
                 direction: {
                   x: 0,
                   y: -1
@@ -165,7 +165,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 2,
+                opposingPlayer: 13,
                 direction: {
                   x: 0,
                   y: -1
@@ -198,7 +198,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 1,
+                opposingPlayer: 12,
                 direction: {
                   x: -1 / Math.sqrt(2),
                   y: -1 / Math.sqrt(2)
@@ -231,7 +231,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 1,
+                opposingPlayer: 12,
                 direction: {
                   x: 0,
                   y: -1
@@ -264,7 +264,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 3,
+                opposingPlayer: 14,
                 direction: {
                   x: 0,
                   y: -1
@@ -297,7 +297,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 7,
+                opposingPlayer: 18,
                 direction: {
                   x: 0,
                   y: -1
@@ -330,7 +330,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 8,
+                opposingPlayer: 19,
                 direction: {
                   x: 0,
                   y: -1
@@ -421,7 +421,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 7,
+                opposingPlayer: 18,
                 direction: {
                   x: 0,
                   y: -1
@@ -741,7 +741,7 @@ export default {
         }
       ];
 
-      let res = await this.app.service("plays").create({ play });
+      let res = await this.app.service("plays").create({ playerData: play });
       console.log(res);
     }
   }
