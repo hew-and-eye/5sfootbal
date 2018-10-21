@@ -1,16 +1,13 @@
 <template>
   <div class="match-viewer">
     <!-- <button @click="createDummyPlay"> create SHIT play</button> -->
-    <p>
-      Here is the match viewer. Lucky you.
-    </p>
     <p v-if="!app"> No feathers connection </p>
-    <div class="field">
-      field should be here
+    <div class="field" :style="fieldStyle">
+      <img src="../assets/field.svg" :style="fieldBgStyle" />
       <p
         v-if="play"
         class="player offense"
-        v-for="(playerData) in play.offensivePlay"
+        v-for="(playerData) in (play || {}).offensivePlay"
         :key="playerData.player._id"
         :style="playerStyle(playerData)"
       >
@@ -19,7 +16,7 @@
       <p
         v-if="play"
         class="player defense"
-        v-for="(playerData) in play.defensivePlay"
+        v-for="(playerData) in (play || {}).defensivePlay"
         :key="playerData.player._id"
         :style="playerStyle(playerData)"
       >
@@ -39,33 +36,57 @@ export default {
   data () {
     return {
       play: null,
-      timeStep: 0
+      timeStep: 0,
+      fieldDims: null,
+      scaleFactor: null
     }
+  },
+  mounted () {
+    const { width, height } =document.body.getBoundingClientRect()
+    this.fieldDims = { width, height }
+    this.scaleFactor = (width - 100) / 160
   },
   watch: {
     app: {
       async handler (after, before) {
         if (!!after && !before) {
-          console.log('ello')
           const result = await this.app.service('plays').find({})
-          console.log(result)
           this.play = result.data[0]
-          console.log(this.play)
         }
       }
     }
   },
   computed: {
     playerStyle () {
+      const scaleFactor = this.scaleFactor
       return playerData => {
         if(!playerData || !playerData.coordinates)
           return
         const {x, y} = playerData.coordinates
         return {
-          top: y * 3 + 'px',
-          left: x * 3 + 'px'
+          left: x * scaleFactor + 'px',
+          top: y * scaleFactor + 'px'
         }
       }
+    },
+    fieldStyle () {
+      return {
+        width: 160 * this.scaleFactor + 'px',
+        height: 360 * this.scaleFactor + 'px'
+      }
+    },
+    fieldBgStyle () {
+      const garbage = { w: 1.067, h: 1.05 }
+      const width = 360 * this.scaleFactor * garbage.w
+      const height = 160 * this.scaleFactor * garbage.h
+      const marginTop = (width - height) / 2
+      return {
+        position: 'absolute',
+        height: height + 'px',
+        width: width + 'px',
+        top: marginTop + 'px',
+        left: -marginTop - 50 + 'px',
+      } 
     }
   }, 
   methods: {
@@ -224,20 +245,23 @@ export default {
 </script>
 <style lang="sass" scoped>
 .match-viewer
-  display: flex
-  flex-direction: column
   height: 100%
   .field
-    width: 100%
-    height: 100%
-    background: green
+    width: 160px
+    height: 360px
+    margin-left: 50px
+    background: blue
+    img
+      transform: rotate(90deg)
   .player
     display: flex
     justify-content: center
     align-items: center
-    position: fixed
+    position: absolute
     height: 3em
     width: 3em
+    margin-left: -1.5em
+    margin-top: -1.5em
     border-radius: 100%
     border: 2px solid white
     color: white
