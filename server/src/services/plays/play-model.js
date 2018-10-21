@@ -49,30 +49,7 @@ export const playSchema = new Schema({
         }
       ]
     }
-  ],
-  defensivePlay: [
-    {
-      player: playerSchema,
-      coordinates: {
-        x: Number,
-        y: Number
-      },
-      actions: [
-        {
-          actionType: { Type: String, enum: ['manCoverage', 'zoneCoverage', 'blitz'] },
-          params: {
-            opposingPlayer: Number, //index in players array, 0-4 linemen, 5-9 skillposition, 10qb
-            point: {
-              x: Number,
-              y: Number
-            },
-            radius: Number
-          },
-          duration: Number
-        }
-      ]
-    }
-  ],
+  ]
 });
 
 

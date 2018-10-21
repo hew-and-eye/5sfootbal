@@ -23,8 +23,20 @@ export default {
       for (let d of data) await this.app.service("plays").remove(d._id);
       const team = new ObjectId();
       const team2 = new ObjectId();
-      const offensivePlay = [
+      const teamData = {
+        team: "Offense",
+        teamName: "Panic Stations",
+        teamId: team
+      };
+      const teamData2 = {
+        team: "Defense",
+        teamName: "O lawd Jesus",
+        teamId: team2
+      };
+
+      const play = [
         {
+          ...teamData,
           player: {
             name: "JASON KELCE",
             stats: {
@@ -65,6 +77,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "DAVID DECASTRO",
             stats: {
@@ -97,6 +110,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "ZACK MARTIN",
             stats: {
@@ -118,7 +132,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 6,
+                opposingPlayer: 4,
                 direction: {
                   x: 0,
                   y: -1
@@ -129,6 +143,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "DAVID BAKHTIARI",
             stats: {
@@ -150,7 +165,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 1,
+                opposingPlayer: 2,
                 direction: {
                   x: 0,
                   y: -1
@@ -161,6 +176,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "DARYL WILLIAMS",
             stats: {
@@ -182,7 +198,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 2,
+                opposingPlayer: 1,
                 direction: {
                   x: -1 / Math.sqrt(2),
                   y: -1 / Math.sqrt(2)
@@ -193,6 +209,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "ROB GRONKOWSKI",
             stats: {
@@ -214,7 +231,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 2,
+                opposingPlayer: 1,
                 direction: {
                   x: 0,
                   y: -1
@@ -225,6 +242,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "JIMMY GRAHAM",
             stats: {
@@ -246,7 +264,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 4,
+                opposingPlayer: 3,
                 direction: {
                   x: 0,
                   y: -1
@@ -257,6 +275,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "ANTONIO BROWN",
             stats: {
@@ -278,7 +297,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 8,
+                opposingPlayer: 7,
                 direction: {
                   x: 0,
                   y: -1
@@ -289,6 +308,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "JULIO JONES",
             stats: {
@@ -310,7 +330,7 @@ export default {
             {
               actionType: "runBlock",
               params: {
-                opposingPlayer: 7,
+                opposingPlayer: 8,
                 direction: {
                   x: 0,
                   y: -1
@@ -321,6 +341,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "SAQUON BARKLEY",
             stats: {
@@ -358,6 +379,7 @@ export default {
           ]
         },
         {
+          ...teamData,
           player: {
             name: "DREW BREES",
             stats: {
@@ -395,13 +417,22 @@ export default {
                 playerTo: 9
               },
               duration: 0.1
+            },
+            {
+              actionType: "runBlock",
+              params: {
+                opposingPlayer: 7,
+                direction: {
+                  x: 0,
+                  y: -1
+                }
+              },
+              duration: 100
             }
           ]
-        }
-      ];
-
-      const defensivePlay = [
+        },
         {
+          ...teamData2,
           player: {
             name: "AARON DONALD",
             stats: {
@@ -427,6 +458,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "KHALIL MACK",
             stats: {
@@ -452,6 +484,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "JJ WATT",
             stats: {
@@ -477,6 +510,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "VON MILLER",
             stats: {
@@ -502,6 +536,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "LUKE KUECHLY",
             stats: {
@@ -530,6 +565,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "BOBBY WAGNER",
             stats: {
@@ -558,6 +594,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "TERRELL SUGGS",
             stats: {
@@ -583,6 +620,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "RICHARD SHERMAN",
             stats: {
@@ -611,6 +649,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "PATRICK PETERSON",
             stats: {
@@ -639,6 +678,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "ERIC BERRY",
             stats: {
@@ -667,6 +707,7 @@ export default {
           ]
         },
         {
+          ...teamData2,
           player: {
             name: "HA HA CLINTON-DIX",
             stats: {
@@ -700,10 +741,7 @@ export default {
         }
       ];
 
-      let res = await this.app.service("plays").create({
-        defensivePlay,
-        offensivePlay
-      });
+      let res = await this.app.service("plays").create({ play });
       console.log(res);
     }
   }
