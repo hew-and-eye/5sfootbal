@@ -141,7 +141,6 @@ export default {
     },
     updatePlayerPositionsOffense() {
       this.play.playerData.forEach(el => {
-        console.log("el: ", el);
         let currentAction = el.actions[0];
         if (
           currentAction.actionType === "handOff" &&

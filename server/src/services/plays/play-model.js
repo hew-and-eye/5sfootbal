@@ -1,31 +1,29 @@
-'use strict';
+"use strict";
 
 // answer-model.js - A mongoose model
-// 
+//
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const { ObjectId } = Schema.Types
-import { playerSchema } from '../players/player-model'
+const { ObjectId } = Schema.Types;
+import { playerSchema } from "../players/player-model";
 
 const coordinateSchema = new Schema({
   x: Number,
   y: Number
-})
+});
 
 export const playSchema = new Schema({
   playerData: [
     {
-      team: { Type: { String, enum: ['Offense', 'Defense'] } },
+      team: { Type: { String, enum: ["Offense", "Defense"] } },
       teamName: String,
       teamId: ObjectId,
       player: playerSchema,
       coordinates: coordinateSchema,
-      coordinatesMovie: [
-        coordinateSchema
-      ],
+      coordinatesMovie: [coordinateSchema],
       physics: {
         d: coordinateSchema,
         v: coordinateSchema,
@@ -35,7 +33,17 @@ export const playSchema = new Schema({
       },
       actions: [
         {
-          actionType: { Type: String, enum: ['runBlock', 'run', 'handOff', 'manCoverage', 'zoneCoverage', 'blitz'] },
+          actionType: {
+            Type: String,
+            enum: [
+              "runBlock",
+              "run",
+              "handOff",
+              "manCoverage",
+              "zoneCoverage",
+              "blitz"
+            ]
+          },
           params: {
             opposingPlayer: Number,
             direction: coordinateSchema,
@@ -52,8 +60,6 @@ export const playSchema = new Schema({
   ]
 });
 
-
-const play = mongoose.model('play', playSchema);
+const play = mongoose.model("play", playSchema);
 
 export default play;
-
