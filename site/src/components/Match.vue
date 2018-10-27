@@ -138,12 +138,10 @@ export default {
         };
       }
       this.game.ballCoordinates = this.play.playerData[0].d;
-      this.play.playerData.forEach(element => {
-        console.log("PHYSICS", element);
-      });
     },
     updatePlayerPositionsOffense() {
       this.play.playerData.forEach(el => {
+        console.log("el: ", el);
         let currentAction = el.actions[0];
         if (
           currentAction.actionType === "handOff" &&
@@ -153,30 +151,7 @@ export default {
           this.playerWithBall = target;
           this.game.ballCoordinates = el.physics.d;
         } else if (currentAction.actionType === "runBlock") {
-          let vGoal = this.differenceVector(
-            this.play.playerData[currentAction.params.opposingPlayer].physics.d,
-            el.physics.d
-          );
-          if (el.player.name === "JASON KELCE")
-            console.log("before norm", vGoal);
-          vGoal = this.normalizeVector(vGoal);
-
-          if (el.player.name === "JASON KELCE") console.log(vGoal);
-          let a = this.normalizeVector(
-            this.differenceVector(
-              vGoal,
-              this.scaleVector(el.physics.v, 1 / el.physics.vMax)
-            )
-          );
-          if (el.player.name === "JASON KELCE") console.log(a);
-          el.physics.v = this.addVector(
-            el.physics.v,
-            this.scaleVector(a, 0.6 * 0.25 * el.physics.vMax)
-          );
-          el.physics.d = this.addVector(
-            el.physics.d,
-            this.scaleVector(el.physics.v, 0.25)
-          );
+          this.calculateGoalAcceleration(el, currentAction);
         }
         // else if (currentAction.actionType === "run") {
         //   console.log("a");
@@ -185,7 +160,44 @@ export default {
         if (el.actions[0].duration <= 0) el.actions.shift();
         el.coordinates = el.physics.d;
       });
+      // this.resolveCollisions(this.play.playerData);
+      this.updateVelocities(this.play.playerData);
+      this.updatePositions(this.play.playerData);
     },
+    calculateGoalAcceleration(el, currentAction) {
+      let vGoal = this.differenceVector(
+        this.play.playerData[currentAction.params.opposingPlayer].physics.d,
+        el.physics.d
+      );
+      vGoal = this.normalizeVector(vGoal);
+
+      el.physics.a = this.normalizeVector(
+        this.differenceVector(
+          vGoal,
+          this.scaleVector(el.physics.v, 1 / el.physics.vMax)
+        )
+      );
+    },
+    updateVelocities(playerData) {
+      this.play.playerData.forEach(el => {
+        el.physics.v = this.addVector(
+          el.physics.v,
+          this.scaleVector(el.physics.a, 0.6 * el.physics.vMax)
+        );
+      });
+    },
+    updatePositions(playerData) {
+      this.play.playerData.forEach(el => {
+        el.physics.d = this.addVector(
+          el.physics.d,
+          this.scaleVector(el.physics.v, 0.25)
+        );
+      });
+    },
+    resolveCollisions(playerData) {
+      this.play.playerData.forEach(el => {});
+    },
+
     distance(p1, p2) {
       return Math.sqrt(Math.abs(((p2.x - p1.x) ^ 2) + ((p2.y - p1.y) ^ 2)));
     },
@@ -205,8 +217,8 @@ export default {
       return { x: p1.x * a, y: p1.y * a };
     },
     normalizeVector(p1) {
-      if (p1.x === 0 && p1.y === 0) return p1;
-      let r = this.distance({ x: 0, y: 0 }, p1);
+      let r = Math.sqrt(p1.x * p1.x + p1.y * p1.y);
+      if (r === 0) return p1;
       return { x: p1.x / r, y: p1.y / r };
     }
   }
