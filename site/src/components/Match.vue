@@ -75,7 +75,8 @@ export default {
       scaleFactor: null,
       playerPhysicsOffense: [],
       playerPhysicsDefense: [],
-      playerWithBall: 0
+      playerWithBall: 0,
+      frameInterval: null
     }
   },
   mounted () {
@@ -133,9 +134,14 @@ export default {
     startFrameInterval () {
       const context = this
       this.populatePlayerPhysics()
-      setInterval(function () {
-        context.updatePlayerPositionsOffense()
-      }, 25)
+      if (!this.frameInterval)
+        this.frameInterval = setInterval(function () {
+          context.updatePlayerPositionsOffense()
+        }, 25)
+      else {
+        clearInterval(this.frameInterval)
+        this.frameInterval = null
+      }
     },
     populatePlayerPhysics() {
       for (let item of this.play.playerData) {
