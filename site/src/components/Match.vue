@@ -137,7 +137,7 @@ export default {
       if (!this.frameInterval)
         this.frameInterval = setInterval(function () {
           context.updatePlayerPositionsOffense()
-        }, 25)
+        }, 100)
       else {
         clearInterval(this.frameInterval)
         this.frameInterval = null
@@ -281,9 +281,12 @@ export default {
     border-radius: 100%
     border: 2px solid white
     color: white
-    // transition: top 0.1s, left 0.1s
+    transition: top 0.25s, left 0.25s
     &.offense
       background: blue
+      background-image: url('../assets/my-face.png')
+      background-position: 48% 48%
+      background-size: cover
     &.defense
       background: red
     &:hover
