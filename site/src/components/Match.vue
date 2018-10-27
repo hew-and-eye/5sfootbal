@@ -217,7 +217,6 @@ export default {
       playerData.forEach(def => {
         let c = 1;
         if (def.team === "Defense") {
-          console.log("HALO");
           vGoal = this.sum(
             vGoal,
             this.scalar(
@@ -273,7 +272,7 @@ export default {
     resolveCollisions(playerData) {
       for (let i = 1; i < playerData.length; i++) {
         for (let j = i + 1; j < playerData.length; j++) {
-          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 2) {
+          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 4) {
             let physicsI = playerData[i].physics;
             let physicsJ = playerData[j].physics;
             playerData[i].physics.v = { x: 0, y: 0 };
@@ -281,9 +280,22 @@ export default {
             let direction = this.diff(physicsI.d, physicsJ.d);
             direction = this.norm(direction);
             let fi = this.scalar(physicsI.v, physicsI.m);
-            fi = this.sum(fi, this.scalar(physicsI.a, physicsI.m));
+            let fStrengthI = this.scalar(
+              this.norm(physicsI.a),
+              0.7 * playerData[i].player.stats.strength +
+                0.3 * playerData[i].player.stats.size
+            );
+            console.log(fi);
+            console.log(fStrengthI);
+            fi = this.sum(fi, fStrengthI);
+
             let fj = this.scalar(physicsJ.v, physicsJ.m);
-            fj = this.sum(fj, this.scalar(physicsJ.a, physicsJ.m));
+            let fStrengthJ = this.scalar(
+              this.norm(physicsJ.a),
+              0.7 * playerData[j].player.stats.strength +
+                0.3 * playerData[j].player.stats.size
+            );
+            fj = this.sum(fj, fStrengthJ);
             let fiDir = this.scalar(direction, this.dot(fi, direction));
             let fjDir = this.scalar(direction, this.dot(fj, direction));
             let fResultDir = this.scalar(this.sum(fiDir, fjDir), 0.5);
