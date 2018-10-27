@@ -164,8 +164,7 @@ export default {
     addHoverData (el) {
       if (!el.hoverData)
           el.hoverData = {}
-      el.hoverData.x = el.coordinates.x
-      el.hoverData.y = el.coordinates.y
+      el.hoverData = el.physics
     },
     updatePlayerPositionsOffense() {
       this.play.playerData.forEach(el => {
@@ -296,7 +295,7 @@ export default {
       background: #3d3d3d
       box-shadow: 0 2px 4px 6px #333
       top: 80px
-      width: 100px
+      width: 200px
       z-index: 100
   .arrow
     position: absolute
