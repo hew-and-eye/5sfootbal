@@ -66,7 +66,7 @@ export default {
   props: {
     app: { type: Object }
   },
-  data () {
+  data() {
     return {
       play: null,
       game: {},
@@ -77,9 +77,9 @@ export default {
       playerPhysicsDefense: [],
       playerWithBall: 0,
       frameInterval: null
-    }
+    };
   },
-  mounted () {
+  mounted() {
     const { width, height } = document.body.getBoundingClientRect();
     this.fieldDims = { width, height };
     this.scaleFactor = (width - 100) / 160;
@@ -103,10 +103,10 @@ export default {
         return {
           left: x * scaleFactor + "px",
           top: y * scaleFactor + "px",
-          width: 4 * scaleFactor + 'px',
-          height: 4 * scaleFactor + 'px',
-          'margin-left': -2 * scaleFactor + 'px',
-          'margin-right': -2 * scaleFactor + 'px'
+          width: 4 * scaleFactor + "px",
+          height: 4 * scaleFactor + "px",
+          "margin-left": -2 * scaleFactor + "px",
+          "margin-right": -2 * scaleFactor + "px"
         };
       };
     },
@@ -131,16 +131,16 @@ export default {
     }
   },
   methods: {
-    startFrameInterval () {
-      const context = this
-      this.populatePlayerPhysics()
+    startFrameInterval() {
+      const context = this;
+      this.populatePlayerPhysics();
       if (!this.frameInterval)
-        this.frameInterval = setInterval(function () {
-          context.updatePlayerPositionsOffense()
-        }, 25)
+        this.frameInterval = setInterval(function() {
+          context.updatePlayerPositionsOffense();
+        }, 100);
       else {
-        clearInterval(this.frameInterval)
-        this.frameInterval = null
+        clearInterval(this.frameInterval);
+        this.frameInterval = null;
       }
     },
     populatePlayerPhysics() {
@@ -161,10 +161,9 @@ export default {
       }
       this.game.ballCoordinates = this.play.playerData[0].d;
     },
-    addHoverData (el) {
-      if (!el.hoverData)
-          el.hoverData = {}
-      el.hoverData = el.physics
+    addHoverData(el) {
+      if (!el.hoverData) el.hoverData = {};
+      el.hoverData = el.physics;
     },
     updatePlayerPositionsOffense() {
       this.play.playerData.forEach(el => {
@@ -185,7 +184,7 @@ export default {
         el.actions[0].duration -= 0.1;
         if (el.actions[0].duration <= 0) el.actions.shift();
         el.coordinates = el.physics.d;
-        this.addHoverData(el)
+        this.addHoverData(el);
       });
       this.resolveCollisions(this.play.playerData);
       this.updateVelocities(this.play.playerData);
@@ -216,27 +215,22 @@ export default {
       });
     },
     resolveCollisions(playerData) {
-      for (let i = 1; i < 2; i++) {
-        for (let j = i + 1; j < 3; j++) {
-          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 2) {
+      for (let i = 1; i < playerData.length; i++) {
+        for (let j = i + 1; j < playerData.length; j++) {
+          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 4) {
             let physicsI = playerData[i].physics;
             let physicsJ = playerData[j].physics;
+            playerData[i].physics.v = { x: 0, y: 0 };
+            playerData[j].physics.v = { x: 0, y: 0 };
             let direction = this.diff(physicsI.d, physicsJ.d);
             direction = this.norm(direction);
             let fi = this.scalar(physicsI.v, physicsI.m);
-            console.log("momentum fi", fi);
             fi = this.sum(fi, this.scalar(physicsI.a, physicsI.m));
-            console.log("with acceleration fi", fi);
             let fj = this.scalar(physicsJ.v, physicsJ.m);
             fj = this.sum(fj, this.scalar(physicsJ.a, physicsJ.m));
             let fiDir = this.scalar(direction, this.dot(fi, direction));
-            console.log("fiDir", fiDir);
             let fjDir = this.scalar(direction, this.dot(fj, direction));
-            console.log("fjDir", fjDir);
-            console.log("-------------------------");
-            let fResultDir = this.sum(fiDir, fjDir);
-            console.log("fResultDir", fResultDir);
-            console.log("-------------------------");
+            let fResultDir = this.scalar(this.sum(fiDir, fjDir), 0.5);
 
             let perp = { x: direction.y, y: direction.x * -1 };
             let fiPerp = this.scalar(perp, this.dot(fi, perp));
@@ -246,20 +240,22 @@ export default {
               this.sum(fResultDir, fiPerp),
               1 / playerData[i].physics.m
             );
-            console.log("player i a", playerData[i].physics.a);
             playerData[j].physics.a = this.scalar(
               this.sum(fResultDir, fjPerp),
               1 / playerData[j].physics.m
             );
-            console.log("player j a", playerData[j].physics.a);
-            console.log("==========================");
+
+            playerData[i].physics.v = { x: 0, y: 0 };
+            playerData[j].physics.v = { x: 0, y: 0 };
           }
         }
       }
     },
 
     dist(p1, p2) {
-      return Math.sqrt(Math.abs(((p2.x - p1.x) ^ 2) + ((p2.y - p1.y) ^ 2)));
+      return Math.sqrt(
+        (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y)
+      );
     },
     diff(p1, p2) {
       let p = {};
