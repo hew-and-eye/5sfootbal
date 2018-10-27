@@ -155,70 +155,106 @@ export default {
         // else if (currentAction.actionType === "run") {
         //   console.log("a");
         // }
-        el.actions[0].duration -= 0.25;
+        el.actions[0].duration -= 0.1;
         if (el.actions[0].duration <= 0) el.actions.shift();
         el.coordinates = el.physics.d;
       });
-      // this.resolveCollisions(this.play.playerData);
+      this.resolveCollisions(this.play.playerData);
       this.updateVelocities(this.play.playerData);
       this.updatePositions(this.play.playerData);
     },
     calculateGoalAcceleration(el, currentAction) {
-      let vGoal = this.differenceVector(
+      let vGoal = this.diff(
         this.play.playerData[currentAction.params.opposingPlayer].physics.d,
         el.physics.d
       );
-      vGoal = this.normalizeVector(vGoal);
+      vGoal = this.norm(vGoal);
 
-      el.physics.a = this.normalizeVector(
-        this.differenceVector(
-          vGoal,
-          this.scaleVector(el.physics.v, 1 / el.physics.vMax)
-        )
+      el.physics.a = this.norm(
+        this.diff(vGoal, this.scalar(el.physics.v, 0.1 / el.physics.vMax))
       );
     },
     updateVelocities(playerData) {
       this.play.playerData.forEach(el => {
-        el.physics.v = this.addVector(
+        el.physics.v = this.sum(
           el.physics.v,
-          this.scaleVector(el.physics.a, 0.6 * el.physics.vMax)
+          this.scalar(el.physics.a, 0.6 * el.physics.vMax)
         );
       });
     },
     updatePositions(playerData) {
       this.play.playerData.forEach(el => {
-        el.physics.d = this.addVector(
-          el.physics.d,
-          this.scaleVector(el.physics.v, 0.25)
-        );
+        el.physics.d = this.sum(el.physics.d, this.scalar(el.physics.v, 0.1));
       });
     },
     resolveCollisions(playerData) {
-      this.play.playerData.forEach(el => {});
+      for (let i = 1; i < 2; i++) {
+        for (let j = i + 1; j < 3; j++) {
+          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 2) {
+            let physicsI = playerData[i].physics;
+            let physicsJ = playerData[j].physics;
+            let direction = this.diff(physicsI.d, physicsJ.d);
+            direction = this.norm(direction);
+            let fi = this.scalar(physicsI.v, physicsI.m);
+            console.log("momentum fi", fi);
+            fi = this.sum(fi, this.scalar(physicsI.a, physicsI.m));
+            console.log("with acceleration fi", fi);
+            let fj = this.scalar(physicsJ.v, physicsJ.m);
+            fj = this.sum(fj, this.scalar(physicsJ.a, physicsJ.m));
+            let fiDir = this.scalar(direction, this.dot(fi, direction));
+            console.log("fiDir", fiDir);
+            let fjDir = this.scalar(direction, this.dot(fj, direction));
+            console.log("fjDir", fjDir);
+            console.log("-------------------------");
+            let fResultDir = this.sum(fiDir, fjDir);
+            console.log("fResultDir", fResultDir);
+            console.log("-------------------------");
+
+            let perp = { x: direction.y, y: direction.x * -1 };
+            let fiPerp = this.scalar(perp, this.dot(fi, perp));
+            let fjPerp = this.scalar(perp, this.dot(fj, perp));
+
+            playerData[i].physics.a = this.scalar(
+              this.sum(fResultDir, fiPerp),
+              1 / playerData[i].physics.m
+            );
+            console.log("player i a", playerData[i].physics.a);
+            playerData[j].physics.a = this.scalar(
+              this.sum(fResultDir, fjPerp),
+              1 / playerData[j].physics.m
+            );
+            console.log("player j a", playerData[j].physics.a);
+            console.log("==========================");
+          }
+        }
+      }
     },
 
-    distance(p1, p2) {
+    dist(p1, p2) {
       return Math.sqrt(Math.abs(((p2.x - p1.x) ^ 2) + ((p2.y - p1.y) ^ 2)));
     },
-    differenceVector(p1, p2) {
+    diff(p1, p2) {
       let p = {};
       p.x = p1.x - p2.x;
       p.y = p1.y - p2.y;
       return p;
     },
-    addVector(p1, p2) {
+    sum(p1, p2) {
       let p = {};
       p.x = p2.x + p1.x;
       p.y = p2.y + p1.y;
       return p;
     },
-    scaleVector(p1, a) {
+    scalar(p1, a) {
       return { x: p1.x * a, y: p1.y * a };
     },
-    normalizeVector(p1) {
+    norm(p1) {
       let r = Math.sqrt(p1.x * p1.x + p1.y * p1.y);
       if (r === 0) return p1;
       return { x: p1.x / r, y: p1.y / r };
+    },
+    dot(p1, p2) {
+      return p1.x * p2.x + p1.y * p2.y;
     }
   }
 };
