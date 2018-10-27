@@ -1,7 +1,3 @@
-
-import dummyData from './hooks/dummy-data'
-import { Hook } from 'mocha';
-
 module.exports = {
   before: {
     all: [],
