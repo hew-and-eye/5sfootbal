@@ -205,10 +205,17 @@ export default {
       );
     },
     calculateGoalAccelerationRun(el, currentAction) {
-      let vGoal = this.diff(
-        this.play.playerData[currentAction.params.opposingPlayer].physics.d,
-        el.physics.d
-      );
+      let runTarget = { x: el.physics.d.x, y: 0 };
+
+      if (currentAction.params.runPoints.length) {
+        if (el.physics.d.y < currentAction.params.runPoints[0].y)
+          currentAction.params.runPoints.shift();
+      }
+      if (currentAction.params.runPoints.length)
+        runTarget = currentAction.params.runPoints[0];
+      let vGoal = this.diff(runTarget, el.physics.d);
+      // Add repulsion of defenders
+
       vGoal = this.norm(vGoal);
       el.physics.a = this.norm(
         this.diff(vGoal, this.scalar(el.physics.v, 0.1 / el.physics.vMax))
@@ -225,10 +232,7 @@ export default {
       );
     },
     calculateGoalAccelerationZone(el, currentAction) {
-      let vGoal = this.diff(
-        this.play.playerData[currentAction.params.opposingPlayer].physics.d,
-        el.physics.d
-      );
+      let vGoal = this.diff(currentAction.params.point, el.physics.d);
       vGoal = this.norm(vGoal);
       el.physics.a = this.norm(
         this.diff(vGoal, this.scalar(el.physics.v, 0.1 / el.physics.vMax))
