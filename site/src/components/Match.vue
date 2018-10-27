@@ -7,50 +7,55 @@
       <!-- <img src="../assets/field.svg" :style="fieldBgStyle" /> -->
       <div
         class=end
-        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}"
-      >
+        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}">
       </div>
       <div
         class=yard
         v-for="(yard, index) in [0, 10, 20, 30, 40, 50, 40, 30, 20, 10]"
         :key="index"
-        :style="{'height': 30 * scaleFactor - 10 + 'px', 'width': 160 * scaleFactor + 'px'}"
-      >
+        :style="{'height': 30 * scaleFactor - 10 + 'px', 'width': 160 * scaleFactor + 'px'}">
         {{yard}}
       </div>
       <div
         class=end
-        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}"
-      >
+        :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}">
       </div>
       <div
         v-for="(playerData) in (play || {}).playerData"
         v-if="playerData.team === 'Offense'"
-        :key="playerData.player._id"
-      >
-        <p
+        :key="playerData.player._id">
+        <div
           v-if="play"
           class="player offense"
-          :style="playerStyle(playerData)"
-        >
+          :style="playerStyle(playerData)">
           <span> {{playerData.player.jerseyNumber}} </span>
-        </p>
+          <div
+            class="player-hover-data"
+            v-if="playerData.hoverData">
+            {{ playerData.hoverData }}
+          </div>
+        </div>
       </div>
       <div
         v-for="(playerData) in (play || {}).playerData"
         v-if="playerData.team === 'Defense'"
-        :key="playerData.player._id"
-      >
-        <p
+        :key="playerData.player._id">
+        <div
           v-if="play"
           class="player defense"
-          :style="playerStyle(playerData)"
-        >
+          :style="playerStyle(playerData)">
           <span> {{playerData.player.jerseyNumber}} </span>
-        </p>
+          <div
+            class="player-hover-data"
+            v-if="playerData.hoverData">
+            {{ playerData.hoverData }}
+          </div>
+        </div>
       </div>
     </div>
-    <button style="position: fixed; bottom: 100px; left: 100px;" @click="timeStep += 1">STEP FORWARD</button>
+    <button style="position: fixed; bottom: 100px; left: 100px;" @click="startFrameInterval">
+      <img style="height: 75px" src="../assets/my-face.png"/>
+    </button>
   </div>
 </template>
 <script>
@@ -61,7 +66,7 @@ export default {
   props: {
     app: { type: Object }
   },
-  data() {
+  data () {
     return {
       play: null,
       game: {},
@@ -71,9 +76,9 @@ export default {
       playerPhysicsOffense: [],
       playerPhysicsDefense: [],
       playerWithBall: 0
-    };
+    }
   },
-  mounted() {
+  mounted () {
     const { width, height } = document.body.getBoundingClientRect();
     this.fieldDims = { width, height };
     this.scaleFactor = (width - 100) / 160;
@@ -96,7 +101,11 @@ export default {
         const { x, y } = playerData.coordinates;
         return {
           left: x * scaleFactor + "px",
-          top: y * scaleFactor + "px"
+          top: y * scaleFactor + "px",
+          width: 4 * scaleFactor + 'px',
+          height: 4 * scaleFactor + 'px',
+          'margin-left': -2 * scaleFactor + 'px',
+          'margin-right': -2 * scaleFactor + 'px'
         };
       };
     },
@@ -121,6 +130,13 @@ export default {
     }
   },
   methods: {
+    startFrameInterval () {
+      const context = this
+      this.populatePlayerPhysics()
+      setInterval(function () {
+        context.updatePlayerPositionsOffense()
+      }, 25)
+    },
     populatePlayerPhysics() {
       for (let item of this.play.playerData) {
         item.physics = {
@@ -138,6 +154,12 @@ export default {
         };
       }
       this.game.ballCoordinates = this.play.playerData[0].d;
+    },
+    addHoverData (el) {
+      if (!el.hoverData)
+          el.hoverData = {}
+      el.hoverData.x = el.coordinates.x
+      el.hoverData.y = el.coordinates.y
     },
     updatePlayerPositionsOffense() {
       this.play.playerData.forEach(el => {
@@ -158,6 +180,7 @@ export default {
         el.actions[0].duration -= 0.1;
         if (el.actions[0].duration <= 0) el.actions.shift();
         el.coordinates = el.physics.d;
+        this.addHoverData(el)
       });
       this.resolveCollisions(this.play.playerData);
       this.updateVelocities(this.play.playerData);
@@ -289,11 +312,22 @@ export default {
     border-radius: 100%
     border: 2px solid white
     color: white
-    transition: top 0.25s, left 0.25s
+    // transition: top 0.1s, left 0.1s
     &.offense
       background: blue
     &.defense
       background: red
+    &:hover
+      .player-hover-data
+        display: block
+    .player-hover-data
+      display: none
+      position: absolute
+      background: #3d3d3d
+      box-shadow: 0 2px 4px 6px #333
+      top: 80px
+      width: 100px
+      z-index: 100
   .arrow
     position: absolute
     font-size: 24px
