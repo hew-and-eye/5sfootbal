@@ -161,7 +161,11 @@ export default {
         } else if (currentAction.actionType === "runBlock") {
           this.calculateGoalAccelerationBlock(el, currentAction);
         } else if (currentAction.actionType === "run") {
-          this.calculateGoalAccelerationRun(el, currentAction);
+          this.calculateGoalAccelerationRun(
+            el,
+            currentAction,
+            this.play.playerData
+          );
         } else if (currentAction.actionType === "manCoverage") {
           this.calculateGoalAccelerationMan(el, currentAction);
         } else if (currentAction.actionType === "zoneCoverage") {
@@ -200,7 +204,7 @@ export default {
         this.diff(vGoal, this.scalar(el.physics.v, 1 / el.physics.vMax))
       );
     },
-    calculateGoalAccelerationRun(el, currentAction) {
+    calculateGoalAccelerationRun(el, currentAction, playerData) {
       let runTarget = { x: el.physics.d.x, y: 0 };
 
       if (currentAction.params.runPoints.length) {
@@ -210,7 +214,21 @@ export default {
       if (currentAction.params.runPoints.length)
         runTarget = currentAction.params.runPoints[0];
       let vGoal = this.diff(runTarget, el.physics.d);
-      // Add repulsion of defenders
+      playerData.forEach(def => {
+        let c = 1;
+        if (def.team === "Defense") {
+          console.log("HALO");
+          vGoal = this.sum(
+            vGoal,
+            this.scalar(
+              this.norm(this.diff(el.physics.d, def.physics.d)),
+              1000 /
+                (this.dist(el.physics.d, def.physics.d) *
+                  this.dist(el.physics.d, def.physics.d))
+            )
+          );
+        }
+      });
 
       vGoal = this.norm(vGoal);
       el.physics.a = this.norm(
@@ -255,7 +273,7 @@ export default {
     resolveCollisions(playerData) {
       for (let i = 1; i < playerData.length; i++) {
         for (let j = i + 1; j < playerData.length; j++) {
-          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 4) {
+          if (this.dist(playerData[i].physics.d, playerData[j].physics.d) < 2) {
             let physicsI = playerData[i].physics;
             let physicsJ = playerData[j].physics;
             playerData[i].physics.v = { x: 0, y: 0 };
