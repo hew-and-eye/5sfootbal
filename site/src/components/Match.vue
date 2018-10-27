@@ -166,6 +166,8 @@ export default {
           this.calculateGoalAccelerationMan(el, currentAction);
         } else if (currentAction.actionType === "zoneCoverage") {
           this.calculateGoalAccelerationZone(el, currentAction);
+        } else if (currentAction.actionType === "blitz") {
+          this.calculateGoalAccelerationBlitz(el, currentAction);
         }
         el.actions[0].duration -= 0.1;
         if (el.actions[0].duration <= 0) el.actions.shift();
@@ -185,6 +187,17 @@ export default {
 
       el.physics.a = this.norm(
         this.diff(vGoal, this.scalar(el.physics.v, 0.1 / el.physics.vMax))
+      );
+    },
+    calculateGoalAccelerationBlitz(el, currentAction) {
+      let vGoal = this.diff(
+        this.play.playerData[this.playerWithBall].physics.d,
+        el.physics.d
+      );
+      vGoal = this.norm(vGoal);
+
+      el.physics.a = this.norm(
+        this.diff(vGoal, this.scalar(el.physics.v, 1 / el.physics.vMax))
       );
     },
     calculateGoalAccelerationRun(el, currentAction) {
@@ -225,7 +238,12 @@ export default {
       this.play.playerData.forEach(el => {
         el.physics.v = this.sum(
           el.physics.v,
-          this.scalar(el.physics.a, 0.6 * el.physics.vMax)
+          this.scalar(
+            el.physics.a,
+            0.1 *
+              0.6 *
+              (el.physics.vMax - this.dist(el.physics.v, { x: 0, y: 0 }))
+          )
         );
       });
     },
