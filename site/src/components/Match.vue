@@ -21,28 +21,11 @@
         :style="{height: 30 * scaleFactor - 10 + 'px', width: 160 * scaleFactor + 'px'}">
       </div>
       <div
-        v-for="(playerData) in (play || {}).playerData"
-        v-if="playerData.team === 'Offense'"
+        v-for="(playerData, index) in (play || {}).playerData"
         :key="playerData.player._id">
         <div
           v-if="play"
-          class="player offense"
-          :style="playerStyle(playerData)">
-          <span> {{playerData.player.jerseyNumber}} </span>
-          <div
-            class="player-hover-data"
-            v-if="playerData.hoverData">
-            {{ playerData.hoverData }}
-          </div>
-        </div>
-      </div>
-      <div
-        v-for="(playerData) in (play || {}).playerData"
-        v-if="playerData.team === 'Defense'"
-        :key="playerData.player._id">
-        <div
-          v-if="play"
-          class="player defense"
+          :class="{'player': true, 'offense': playerData.team === 'Offense', 'defense': playerData.team === 'Defense', 'ball-carrier': index === playerWithBall}"
           :style="playerStyle(playerData)">
           <span> {{playerData.player.jerseyNumber}} </span>
           <div
@@ -353,11 +336,12 @@ export default {
     transition: top 0.25s, left 0.25s
     &.offense
       background: blue
+    &.defense
+      background: red
+    &.ball-carrier
       background-image: url('../assets/my-face.png')
       background-position: 48% 48%
       background-size: cover
-    &.defense
-      background: red
     &:hover
       .player-hover-data
         display: block
